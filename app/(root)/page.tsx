@@ -1,14 +1,9 @@
-import { Button } from "@/components/ui/button";
-
-export const metadata = {
-  title: "Home",
-  description: "Modern E-commerce Platform For Your Kinda Business",
-};
+import ProductList from "@/components/product/product-list";
+import sampleData from "@/db/sample-data";
 export default function Home() {
   return (
     <div>
-      Ecommerce
-      <Button variant="default">Button</Button>
+      <ProductList data={sampleData.products} title="Newest Arrivals" limit={4} />
     </div>
   );
 }
