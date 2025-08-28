@@ -2,8 +2,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import ProductPrice from "./product-price";
+import { Product } from "@/types";
 
-const ProductCard = ({ product }: { product: any }) => {
+const ProductCard = ({ product }: { product: Product }) => {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader className="p-0 items-center">
@@ -14,7 +15,7 @@ const ProductCard = ({ product }: { product: any }) => {
             height={300}
             width={300}
             priority={true}
-            objectFit="cover"
+            style={{ objectFit: "cover" }}
             className="w-full h-full p-0"
           />
         </Link>

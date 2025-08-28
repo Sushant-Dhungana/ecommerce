@@ -11,7 +11,7 @@ const LoadingPage = () => {
         width: "100vw",
       }}
     >
-      <Image src={Loader} height={150} width={150} alt="loading" />
+      <Image src={Loader} height={150} alt="loading" priority={true} />
     </div>
   );
 };
