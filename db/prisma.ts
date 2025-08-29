@@ -2,7 +2,10 @@ import "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig } from "@neondatabase/serverless";
+import type { Product } from "@/types";
+
 import ws from "ws";
+import { Decimal } from "@prisma/client/runtime/library";
 
 // Sets up WebSocket connections, which enables Neon to use WebSocket communication.
 neonConfig.webSocketConstructor = ws;
@@ -21,13 +24,15 @@ function getPrismaClient() {
     result: {
       product: {
         price: {
-          compute(product) {
-            return product.price.toString();
+          compute(product: { price: Decimal }): string {
+            // match runtime type
+            return product.price.toNumber().toString(); // convert Decimal -> string
           },
         },
         rating: {
-          compute(product) {
-            return product.rating.toString();
+          compute(product: { rating: Decimal }): string {
+            // match runtime type
+            return product.rating.toNumber().toString(); // convert Decimal -> string
           },
         },
       },
