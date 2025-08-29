@@ -2,7 +2,7 @@
 
 import { convertToPlainObject } from "../utils";
 import { LATEST_PRODUCTS_LIMIT } from "../constants";
-import prisma from "../../db/prisma";
+import prisma from "@/db/prisma";
 
 export async function getLatestProducts() {
   const data = await prisma.product.findMany({
@@ -13,4 +13,12 @@ export async function getLatestProducts() {
   });
 
   return convertToPlainObject(data); //prisma object
+}
+
+//get single product by its slug
+
+export async function getProductBySlug(slug: string){
+  return await prisma.product.findFirst({
+    where:{slug:slug},
+  })
 }
