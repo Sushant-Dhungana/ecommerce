@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "buildCommand": "npm run build",
+  "installCommand": "npm install && npx prisma generate",
+  "devCommand": "npm run dev",
+  "outputDirectory": ".next",
+  "functions": {
+    "app/**/*.js": {
+      "maxDuration": 30
+    }
+  }
+}
