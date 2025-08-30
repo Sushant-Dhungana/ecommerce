@@ -1,7 +1,7 @@
 {
   "version": 3,
   "buildCommand": "npm run build",
-  "installCommand": "npm install && npx prisma generate",
+  "installCommand": "npm install",
   "devCommand": "npm run dev",
   "outputDirectory": ".next",
   "functions": {
