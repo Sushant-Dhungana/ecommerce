@@ -1,7 +1,0 @@
-# .eslintignore
-/lib/generated/
-/node_modules/
-/.next/
-/out/
-/dist/
-*.d.ts

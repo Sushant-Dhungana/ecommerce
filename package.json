@@ -3,14 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "prebuild": "prisma generate",
-    "dev": "next dev --turbopack",
-    "build": "next build --turbopack",
+    "dev": "prisma generate && next dev --turbopack",
+    "build": "prisma generate && next build --turbopack",
     "start": "next start",
     "postinstall": "prisma generate",
-    "lint": "eslint . --ext .ts,.tsx --ignore-path .eslintignore",
-    "lint:fix": "eslint . --ext .ts,.tsx --fix --ignore-path .eslintignore",
-    "lint:app": "eslint app lib components --ext .ts,.tsx"
+    "lint": "eslint . --ext .ts,.tsx --ignore-path .eslintignore"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.6.1",

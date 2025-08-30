@@ -12,6 +12,12 @@ const nextConfig: NextConfig = {
     // Keep type checking for your actual code
     ignoreBuildErrors: false,
   },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      require("./scripts/generate-prisma");
+    }
+    return config;
+  },
 };
 
 export default nextConfig;
