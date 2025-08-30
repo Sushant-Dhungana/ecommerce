@@ -8,7 +8,7 @@
   "scripts": {
     "prebuild": "prisma generate",
     "dev": "next dev --turbopack",
-    "build": "npx prisma db push && npx prisma generate && next build",
+    "build": "npx prisma generate && next build",
     "vercel-build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
