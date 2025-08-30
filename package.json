@@ -8,9 +8,9 @@
   "scripts": {
     "prebuild": "prisma generate",
     "dev": "next dev --turbopack",
-    "build": "next build",
+    "build": "npx prisma db push && npx prisma generate && next build",
     "vercel-build": "prisma generate && next build",
-    "start": "npx prisma db push && npx prisma generate && node ./build/server.js",
+    "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint . --ext .ts,.tsx --ignore-path .eslintignore"
   },
