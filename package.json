@@ -10,7 +10,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "vercel-build": "prisma generate && next build",
-    "start": "next start",
+    "start": "npx prisma db push && npx prisma generate && node ./build/server.js",
     "postinstall": "prisma generate",
     "lint": "eslint . --ext .ts,.tsx --ignore-path .eslintignore"
   },
