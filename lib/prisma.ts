@@ -1,7 +1,6 @@
 // lib/prisma.ts
-import { PrismaClient } from "@prisma/client";
-import { Decimal } from "@prisma/client/runtime/library";
-
+import { PrismaClient } from "@/lib/generated/prisma";
+import { Decimal } from "./generated/prisma/runtime/library";
 // Define the extended client type
 type ExtendedPrismaClient = ReturnType<typeof getPrismaClient>;
 
