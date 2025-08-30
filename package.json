@@ -8,8 +8,7 @@
   "scripts": {
     "prebuild": "prisma generate",
     "dev": "next dev --turbopack",
-    "build": "npx prisma generate && next build",
-    "vercel-build": "prisma generate && next build",
+    "build": "next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint . --ext .ts,.tsx --ignore-path .eslintignore"
