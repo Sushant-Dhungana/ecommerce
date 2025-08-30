@@ -2,7 +2,6 @@ import "dotenv";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import { neonConfig } from "@neondatabase/serverless";
-import type { Product } from "@/types";
 
 import ws from "ws";
 import { Decimal } from "@prisma/client/runtime/library";
