@@ -7,7 +7,8 @@
   },
   "scripts": {
     "dev": "prisma generate && next dev --turbopack",
-    "build": "npm run db:generate && next build",
+    "build": "prisma generate && next build",
+    "vercel-build": "prisma generate && next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
