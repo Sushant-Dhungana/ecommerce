@@ -1,3 +1,4 @@
+import React from "react";
 import { getProductBySlug } from "@/lib/actions/product.actions";
 import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
@@ -16,7 +17,7 @@ const ProductDetailsPage = async (props: {
   }
   return (
     <section>
-      {/* images column */}
+      images column
       <div className="grid grid-cols-1 md:grid-cols-5">
         <div className="col-span-2 p-5">
           <ProductImages images={product.images} />
