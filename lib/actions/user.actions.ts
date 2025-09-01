@@ -1,8 +1,12 @@
 "use server";
 
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { SignInFormSchema } from "../validators";
+import { SignInFormSchema, SignUpFormSchema } from "../validators";
 import { signIn, signOut } from "@/auth";
+import { hashSync } from "bcrypt-ts-edge";
+import prisma from "@/lib/prisma";
+import { redirect } from "next/navigation";
+import { formatError } from "@/lib/utils";
 
 //sign in with credentials provided in ui
 export async function signInWithCredentials(
@@ -15,11 +19,11 @@ export async function signInWithCredentials(
       password: formData.get("password"),
     });
 
-    const res = await signIn("credentials", {
+    const res = (await signIn("credentials", {
       email: user.email,
       password: user.password,
-      redirect: false,
-    });
+      redirect: true,
+    })) as { error?: string; status: number; ok: boolean; url: string | null };
 
     if (res?.error) {
       return { success: false, message: "Invalid credentials" };
@@ -37,4 +41,45 @@ export async function signInWithCredentials(
 //sign out
 export async function signOutUser() {
   await signOut(); //kill cookies
+}
+
+//sign up user
+export async function signUpUser(prevSate: unknown, formData: FormData) {
+  try {
+    const user = SignUpFormSchema.parse({
+      name: formData.get("name"),
+      email: formData.get("email"),
+      password: formData.get("password"),
+      confirmPassword: formData.get("confirmPassword"),
+    });
+    // Check if user already exists
+    const existingUser = await prisma.user.findUnique({
+      where: { email: user.email },
+    });
+    if (existingUser) {
+      return { success: false, message: "User with this email already exists" };
+    }
+    const plainPassword = user.password;
+
+    user.password = hashSync(user.password, 10);
+    await prisma.user.create({
+      data: {
+        name: user.name,
+        email: user.email,
+        password: user.password,
+      },
+    });
+    await signIn("credentials", {
+      email: user.email,
+      password: plainPassword,
+      redirect: true,
+    });
+    redirect("/");
+    return { success: true, message: "User Registered successfully" };
+  } catch (error) {
+    if (isRedirectError(error)) {
+      throw error;
+    }
+    return { success: false, message: formatError(error) };
+  }
 }

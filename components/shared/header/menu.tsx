@@ -11,6 +11,7 @@ import {
   SheetHeader,
 } from "@/components/ui/sheet";
 import { Separator } from "@radix-ui/react-dropdown-menu";
+import UserButton from "./user-button";
 
 const Menu = () => {
   return (
@@ -22,12 +23,7 @@ const Menu = () => {
             <ShoppingCart /> Cart
           </Link>
         </Button>
-        <Button asChild>
-          <Link href="/sign-in">
-            <UserIcon />
-            Sign In
-          </Link>
-        </Button>
+        <UserButton />
       </nav>
       <nav className="md:hidden">
         <Sheet>
@@ -42,11 +38,7 @@ const Menu = () => {
 
             <ModeToggle />
             <div className="flex flex-row sm:flex-col gap-4">
-              <Button asChild>
-                <Link href="/cart">
-                  <UserIcon /> Sign In
-                </Link>
-              </Button>
+              <UserButton />
               <Button asChild>
                 <Link href="/cart">
                   <ShoppingCart /> Cart
