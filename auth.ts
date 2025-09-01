@@ -1,11 +1,10 @@
 import NextAuth from "next-auth";
 import { PrismaAdapter } from "@auth/prisma-adapter";
-import { PrismaClient } from "@/lib/generated/prisma";
-import { adapter } from "next/dist/server/web/adapter";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
 import prisma from "@/lib/prisma";
+import { z } from "zod"; // Add this import
 
 export const config = {
   pages: {
@@ -24,20 +23,23 @@ export const config = {
         password: { type: "password" },
       },
       async authorize(credentials) {
-        if (credentials === null) return null;
-        //check for user in database
-        const user = await prisma?.user.findFirst({
+        if (!credentials?.email || !credentials?.password) return null;
+
+        // Check for user in database
+        const user = await prisma.user.findFirst({
           where: {
             email: credentials.email as string,
           },
         });
-        //check if user exists and if password matches
+
+        // Check if user exists and if password matches
         if (user && user.password) {
           const isMatch = compareSync(
             credentials.password as string,
             user.password
           );
-          //check if password is correct then return user
+
+          // Check if password is correct then return user
           if (isMatch) {
             return {
               id: user.id,
@@ -47,22 +49,30 @@ export const config = {
             };
           }
         }
-        //if user doesnot exist or password doesnot match
+
+        // If user doesn't exist or password doesn't match
         return null;
       },
     }),
   ],
   callbacks: {
-    async session({ session, user, trigger, token }: any) {
-      //set the user id from the token
-      session.user.id = user.sub;
-
-      //if there is an update, set the user name
-      if (trigger === "update") {
-        session.user.name = user.name;
+    async jwt({ token, user }) {
+      // Add user role to the token on sign in
+      if (user) {
+        token.role = user.role;
+        token.id = user.id;
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      // Set the user id and role from the token
+      if (session.user) {
+        session.user.id = token.id as string;
+        session.user.role = token.role as string;
       }
       return session;
     },
   },
 } satisfies NextAuthConfig;
+
 export const { handlers, auth, signIn, signOut } = NextAuth(config);
