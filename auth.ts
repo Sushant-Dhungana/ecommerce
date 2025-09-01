@@ -4,7 +4,6 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
 import prisma from "@/lib/prisma";
-import { z } from "zod"; // Add this import
 
 export const config = {
   pages: {
@@ -57,19 +56,30 @@ export const config = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      // Add user role to the token on sign in
+      // Runs at login
       if (user) {
-        token.role = user.role;
         token.id = user.id;
+        token.role = user.role;
+
+        if (user.name === "NO_NAME") {
+          token.name = user.email!.split("@")[0];
+
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { name: token.name },
+          });
+        } else {
+          token.name = user.name;
+        }
       }
+
       return token;
     },
     async session({ session, token }) {
       // Set the user id and role from the token
-      if (session.user) {
-        session.user.id = token.id as string;
-        session.user.role = token.role as string;
-      }
+      session.user.id = token.sub as string;
+      session.user.role = token.role as string;
+      session.user.name = token.name as string;
       return session;
     },
   },
