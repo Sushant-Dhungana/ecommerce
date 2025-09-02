@@ -1,13 +1,13 @@
 "use client";
 
-import { CartItem } from "@/types";
-import { Button } from "../ui/button";
+import { Cart, CartItem } from "@/types";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { Plus } from "lucide-react";
-import { addItemToCart } from "@/lib/actions/cart.actions";
+import { Minus, Plus } from "lucide-react";
+import { addItemToCart, removeItemFromCart } from "@/lib/actions/cart.actions";
 import { toast } from "sonner";
 
-const AddToCart = ({ item }: { item: CartItem }) => {
+const AddToCart = ({ cart, item }: { cart?: Cart; item: CartItem }) => {
   const router = useRouter();
   const handleAddToCart = async () => {
     const res = await addItemToCart({ data: item });
@@ -18,9 +18,34 @@ const AddToCart = ({ item }: { item: CartItem }) => {
       toast.error(res.message);
     }
     //handle success cart add item
-    toast(`${item.name} added to cart`);
+    toast(res.message);
   };
-  return (
+
+  const handleRemoveFromCart = async () => {
+    const res = await removeItemFromCart(item.productId);
+
+    if (res) {
+      toast.success(`${item.name} removed from cart`);
+    } else {
+      toast.error(`Cannot remove${item.name}  from cart`);
+    }
+    return;
+  };
+
+  //check if items is in cart
+  const existItem =
+    cart && cart.items.find((x) => x.productId === item.productId);
+  return existItem ? (
+    <div className="flex gap-2 items-center">
+      <Button type="button" variant="outline" onClick={handleRemoveFromCart}>
+        <Minus className="h-4 w-4" />
+      </Button>
+      <span>{existItem?.qty}</span>
+      <Button type="button" onClick={handleAddToCart}>
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+  ) : (
     <Button className="w-full" type="button" onClick={handleAddToCart}>
       Add to cart
     </Button>
