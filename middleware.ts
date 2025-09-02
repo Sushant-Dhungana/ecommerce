@@ -21,5 +21,5 @@ export default auth((req) => {
 });
 export const config = {
   matcher: ["/((?!_next/static|_next/image|favicon.ico).*)"],
+  runtime: "edge", // Change from "nodejs" to "edge"
 };
-export const runtime = "nodejs";
