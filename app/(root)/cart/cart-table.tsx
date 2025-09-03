@@ -17,10 +17,13 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { formatCurrency } from "@/lib/utils";
+import { Card, CardContent } from "@/components/ui/card";
 
 const CartTable = ({ cart }: { cart: Cart | undefined }) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const [isPendingCheckout, startPendingCheckout] = useTransition();
 
   return (
     <>
@@ -113,6 +116,30 @@ const CartTable = ({ cart }: { cart: Cart | undefined }) => {
               </TableBody>
             </Table>
           </div>
+          <Card>
+            <CardContent className="p-4 gap-4">
+              <div className="pb-3 text-xl">
+                Subtotal({cart.items.reduce((a, c) => a + c.qty, 0)} items):
+                <span className="font-bold">
+                  {formatCurrency(cart.itemsPrice)}
+                </span>
+              </div>
+              <Button
+                className="w-full"
+                disabled={isPendingCheckout}
+                onClick={() =>
+                  startPendingCheckout(() => router.push("/shipping-address"))
+                }
+              >
+                {isPendingCheckout ? (
+                  <Loader className="w-4 h-4 animate-spin" />
+                ) : (
+                  <ArrowLeftRightIcon />
+                )}{" "}
+                Proceed To Checkout
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       )}
     </>
