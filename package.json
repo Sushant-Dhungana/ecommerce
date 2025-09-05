@@ -9,6 +9,7 @@
     "prebuild": "prisma generate",
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "next build",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint . --ext .ts,.tsx --ignore-path .eslintignore"
