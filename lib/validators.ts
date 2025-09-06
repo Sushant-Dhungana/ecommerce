@@ -121,3 +121,10 @@ export const insertOrderItemSchema = z.object({
   image: z.string(),
   price: currency,
 });
+
+export const paymentResultSchema = z.object({
+  id: z.string(),
+  status: z.string(),
+  email_address: z.string(),
+  pricePaid: z.string(),
+});
