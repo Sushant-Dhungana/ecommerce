@@ -1,4 +1,3 @@
-import { shippingAddressSchema } from "./../validators";
 export const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || "E-Commerce";
 export const APP_DESCRIPTION =
   process.env.NEXT_PUBLIC_APP_DESCRIPTION ||
@@ -42,5 +41,3 @@ export const PAYMENT_METHODS = process.env.PAYMENT_METHODS
 
 export const DEFAULT_PAYMENT_METHOD =
   process.env.DEFAULT_PAYMENT_METHOD || "PayPal";
-
-  

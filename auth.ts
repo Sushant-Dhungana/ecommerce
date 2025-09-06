@@ -5,8 +5,8 @@ import { compareSync } from "bcrypt-ts-edge";
 import type { NextAuthConfig } from "next-auth";
 import prisma from "@/lib/prisma";
 import { cookies } from "next/headers";
-import { NextResponse } from "next/server";
-import { User } from "lucide-react";
+// import { NextResponse } from "next/server";
+// import { User } from "lucide-react";
 
 export const config = {
   pages: {
