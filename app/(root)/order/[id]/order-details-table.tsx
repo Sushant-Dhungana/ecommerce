@@ -24,7 +24,6 @@ import {
   approvePaypalOrder,
 } from "@/lib/actions/order.action";
 import { toast } from "sonner";
-import { Button } from "@/components/ui/button";
 import { useEffect, useState } from "react";
 
 const OrderDetailsTable = ({
@@ -49,109 +48,39 @@ const OrderDetailsTable = ({
 
   const [paypalError, setPaypalError] = useState<string | null>(null);
   const [isPaypalLoading, setIsPaypalLoading] = useState(false);
-  const [paypalLoaded, setPaypalLoaded] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
-
-  useEffect(() => {
-    // Reset state when component mounts or retry is triggered
-    setPaypalError(null);
-    setPaypalLoaded(false);
-  }, [retryCount]);
 
   const PrintLoadingState = () => {
-    const [{ isPending, isRejected, isResolved }] = usePayPalScriptReducer();
-
-    useEffect(() => {
-      if (isResolved) {
-        setPaypalLoaded(true);
-        setPaypalError(null);
-      }
-      if (isRejected) {
-        setPaypalError(
-          "Failed to load PayPal. Please try another payment method."
-        );
-      }
-    }, [isPending, isRejected, isResolved]);
-
+    const [{ isPending, isRejected }] = usePayPalScriptReducer();
+    let status = "";
     if (isPending) {
-      return (
-        <div className="text-sm text-muted-foreground py-2">
-          Loading PayPal...
-        </div>
-      );
+      status = "Loading PayPal...";
     } else if (isRejected) {
-      return (
-        <div className="text-sm text-destructive py-2">
-          Failed to load PayPal
-        </div>
-      );
+      status = "Failed to load PayPal";
     }
-    return null;
+    return status;
   };
 
   const handleCreatePaypalOrder = async (): Promise<string> => {
-    setIsPaypalLoading(true);
-    setPaypalError(null);
-    try {
-      const res = await createPaypalOrder(order.id);
-      if (!res.success) {
-        toast.error(res.message);
-        setPaypalError(res.message);
-        throw new Error(res.message);
-      }
-      return res.data;
-    } catch (error) {
-      console.error("PayPal create order error:", error);
-      setPaypalError("Failed to create PayPal order");
-      throw error;
-    } finally {
-      setIsPaypalLoading(false);
+    const res = await createPaypalOrder(order.id);
+
+    if (!res.success) {
+      toast.error(res.message);
+      throw new Error(res.message);
+    } else {
+      toast.success(res.message);
     }
+    return res.data;
   };
 
   const handleApprovePaypalOrder = async (data: { orderID: string }) => {
-    setIsPaypalLoading(true);
-    setPaypalError(null);
-    try {
-      const res = await approvePaypalOrder(order.id, data);
-      if (!res.success) {
-        toast.error(res.message);
-        setPaypalError(res.message);
-        throw new Error(res.message);
-      } else {
-        toast.success(res.message);
-      }
-      return res.data;
-    } catch (error) {
-      console.error("PayPal approve order error:", error);
-      setPaypalError("Failed to process PayPal payment");
-      throw error;
-    } finally {
-      setIsPaypalLoading(false);
+    const res = await approvePaypalOrder(order.id, data);
+    if (!res.success) {
+      toast.error(res.message);
+      throw new Error(res.message);
+    } else {
+      toast.success(res.message);
     }
   };
-
-  const handleRetryPaypal = () => {
-    setRetryCount((prev) => prev + 1);
-  };
-
-  const handleAlternativePayment = () => {
-    toast.info(
-      "Alternative payment method selected. This would redirect to a different payment gateway."
-    );
-    // Implement your alternative payment logic here
-  };
-
-  // Additional debug info - can be removed in production
-  const DebugInfo = () => (
-    <div className="mt-4 p-3 bg-muted rounded-md text-xs">
-      <p className="font-medium">Debug Info (Remove in production):</p>
-      <p>Client ID: {paypalClientId?.substring(0, 20)}...</p>
-      <p>Environment: Sandbox</p>
-      <p>Retry Count: {retryCount}</p>
-      <p>Status: {paypalLoaded ? "Loaded" : "Loading"}</p>
-    </div>
-  );
 
   return (
     <>
@@ -256,64 +185,27 @@ const OrderDetailsTable = ({
 
               {!isPaid && paymentMethod === "PayPal" && (
                 <div className="mt-4">
-                  {paypalError ? (
-                    <div className="border rounded-md p-4">
-                      <div className="text-destructive text-sm mb-2">
-                        {paypalError}
-                      </div>
-                      <div className="flex flex-col space-y-2">
-                        <Button onClick={handleRetryPaypal} size="sm">
-                          Retry PayPal
-                        </Button>
-                        <Button
-                          onClick={handleAlternativePayment}
-                          variant="outline"
-                          size="sm"
-                        >
-                          Use Alternative Payment
-                        </Button>
-                      </div>
-                    </div>
-                  ) : (
-                    <PayPalScriptProvider
-                      key={retryCount} // Force re-render on retry
-                      options={{
-                        clientId: paypalClientId,
-                        currency: "USD",
-                        components: "buttons",
-                        intent: "capture",
-                        vault: false,
-                        "data-page-type": "checkout",
+                  <PayPalScriptProvider
+                    options={{
+                      clientId: paypalClientId,
+                    }}
+                  >
+                    <PrintLoadingState />
+                    <PayPalButtons
+                      createOrder={handleCreatePaypalOrder}
+                      onApprove={handleApprovePaypalOrder}
+                      onError={(err) => {
+                        console.error("PayPal button error:", err);
+                        setPaypalError(
+                          "PayPal payment failed. Please try again."
+                        );
                       }}
-                    >
-                      <PrintLoadingState />
-                      {paypalLoaded && !isPaypalLoading && (
-                        <PayPalButtons
-                          createOrder={handleCreatePaypalOrder}
-                          onApprove={handleApprovePaypalOrder}
-                          onError={(err) => {
-                            console.error("PayPal button error:", err);
-                            setPaypalError(
-                              "PayPal payment failed. Please try again."
-                            );
-                          }}
-                          onCancel={() => {
-                            console.log("PayPal payment cancelled");
-                            setPaypalError("Payment was cancelled.");
-                          }}
-                          style={{
-                            layout: "vertical",
-                            color: "blue",
-                            shape: "rect",
-                            label: "paypal",
-                            height: 40,
-                          }}
-                          forceReRender={[totalPrice, retryCount]}
-                        />
-                      )}
-                    </PayPalScriptProvider>
-                  )}
-                  <DebugInfo />
+                      onCancel={() => {
+                        console.log("PayPal payment cancelled");
+                        setPaypalError("Payment was cancelled.");
+                      }}
+                    />
+                  </PayPalScriptProvider>
                 </div>
               )}
             </CardContent>
