@@ -10,6 +10,7 @@ import prisma from "@/lib/prisma";
 import { CartItem, PaymentResult } from "@/types";
 import { revalidatePath } from "next/cache";
 import { paypal } from "../paypal";
+import { PAGE_SIZE } from "../constants";
 
 //create order and create the order items
 export async function createOrder() {
@@ -168,7 +169,7 @@ export async function approvePaypalOrder(
       throw new Error("Paypal payment error");
     }
     //update order to paid
-    updateOrderToPaid({
+    await updateOrderToPaid({
       orderId,
       paymentResult: {
         id: captureData.id,
@@ -252,4 +253,29 @@ async function updateOrderToPaid({
   });
   if (!updatedOrder) throw new Error("Order not found");
   return updatedOrder;
+}
+
+//Get the users orders
+export async function getMyOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const session = await auth();
+  if (!session) throw new Error("user not authorized");
+
+  const data = await prisma.order.findMany({
+    where: { userId: session?.user?.id },
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: (page - 1) * limit,
+  });
+
+  const dataCount = await prisma.order.count({
+    where: { userId: session?.user?.id },
+  });
+
+  return { data, totalPages: Math.ceil(dataCount / limit) };
 }

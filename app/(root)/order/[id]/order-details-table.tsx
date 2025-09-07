@@ -24,7 +24,7 @@ import {
   approvePaypalOrder,
 } from "@/lib/actions/order.action";
 import { toast } from "sonner";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const OrderDetailsTable = ({
   order,
@@ -47,7 +47,6 @@ const OrderDetailsTable = ({
   } = order;
 
   const [paypalError, setPaypalError] = useState<string | null>(null);
-  const [isPaypalLoading, setIsPaypalLoading] = useState(false);
 
   const PrintLoadingState = () => {
     const [{ isPending, isRejected }] = usePayPalScriptReducer();
@@ -187,7 +186,8 @@ const OrderDetailsTable = ({
                 <div className="mt-4">
                   <PayPalScriptProvider
                     options={{
-                      clientId: paypalClientId,
+                      clientId: paypalClientId as string,
+                      merchantId: "57M9JKNAAAJK4",
                     }}
                   >
                     <PrintLoadingState />
