@@ -33,7 +33,6 @@ export default function UserLayout({
       <div className="flex-1 space-y-4 p-8 pt-6 container mx-auto">
         {children}
       </div>
-      <Footer />
     </div>
   );
 }

@@ -58,7 +58,14 @@ export const config = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user, trigger }) {
+    async session({ session, token }) {
+      // Set the user id and role from the token
+      session.user.id = token.sub as string;
+      session.user.role = token.role as string;
+      session.user.name = token.name as string;
+      return session;
+    },
+    async jwt({ token, user, trigger, session }) {
       // Runs at login
       if (user) {
         token.id = user.id;
@@ -107,35 +114,12 @@ export const config = {
         }
       }
 
+      //handle session updates
+      if (session?.user.name && trigger === "update") {
+        token.name = session.user.name;
+      }
       return token;
     },
-    async session({ session, token }) {
-      // Set the user id and role from the token
-      session.user.id = token.sub as string;
-      session.user.role = token.role as string;
-      session.user.name = token.name as string;
-      return session;
-    },
-    // //eslint-disable-next-line @typescript-eslint/no-explicit-any
-    // authorized({ request, auth }: any) {
-    //   //check for session cart cookie
-    //   if (!request.cookies.get("sessionCartId")) {
-    //     const sessionCartId = crypto.randomUUID();
-    //     //clone request headers
-    //     const newRequestHeaders = new Headers(request.headers);
-    //     //create new response and add the new headers
-    //     const response = NextResponse.next({
-    //       request: {
-    //         headers: newRequestHeaders,
-    //       },
-    //     });
-    //     //set newly generated sessionCartId in the response cookies
-    //     response.cookies.set("sessionCartId", sessionCartId);
-    //     return response;
-    //   } else {
-    //     return true;
-    //   }
-    // },
     authorized({ request, auth }) {
       const protectedPaths = [
         /\/shipping-address/,
