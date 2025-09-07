@@ -164,11 +164,7 @@ export async function approvePaypalOrder(
       throw new Error("Order not found");
     }
     const captureData = await paypal.capturePayment(data.orderID);
-    if (
-      !captureData ||
-      captureData.id != (order.paymentResult as PaymentResult)?.id ||
-      captureData.status !== "COMPLETED"
-    ) {
+    if (!captureData || captureData.status !== "COMPLETED") {
       throw new Error("Paypal payment error");
     }
     //update order to paid
