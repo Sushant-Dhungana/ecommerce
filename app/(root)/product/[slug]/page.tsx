@@ -7,10 +7,12 @@ import ProductPrice from "@/components/product/product-price";
 import ProductImages from "@/components/product/product-images";
 import AddToCart from "@/components/product/add-to-cart";
 import { getMyCart } from "@/lib/actions/cart.actions";
+import { requireAdmin } from "@/lib/auth-guard";
 
 const ProductDetailsPage = async (props: {
   params: Promise<{ slug: string }>;
 }) => {
+  await requireAdmin();
   const { slug } = await props.params;
   const product = await getProductBySlug(slug);
   if (!product) {

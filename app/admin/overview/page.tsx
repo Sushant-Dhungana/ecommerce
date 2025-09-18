@@ -18,11 +18,14 @@ import {
 } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
+import Charts from "./charts";
+import { requireAdmin } from "@/lib/auth-guard";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard",
 };
 const AdminOverviewPage = async () => {
+  await requireAdmin();
   const session = await auth();
 
   if (session?.user?.role !== "admin") {
@@ -86,7 +89,13 @@ const AdminOverviewPage = async () => {
           <CardHeader>
             <CardTitle className="text-sm font-medium">Overview</CardTitle>
           </CardHeader>
-          <CardContent>{/* Chart will go here */}</CardContent>
+          <CardContent>
+            <Charts
+              data={{
+                salesData: summary.salesData,
+              }}
+            />
+          </CardContent>
         </Card>
         <Card className="col-span-3">
           <CardHeader>
@@ -102,22 +111,24 @@ const AdminOverviewPage = async () => {
                   <TableHead>ACTIONS</TableHead>
                 </TableRow>
               </TableHeader>
-              {summary.latestSales.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>
-                    {order?.user?.name ? order.user.name : "Deleted User"}
-                  </TableCell>
-                  <TableCell>
-                    {formatDateTime(order.createdAt).dateTime}
-                  </TableCell>
-                  <TableCell>
-                    {formatCurrency(order.totalPrice.toString())}
-                  </TableCell>
-                  <TableCell>
-                    <Link href={`/order/${order.id}`}>Details</Link>
-                  </TableCell>
-                </TableRow>
-              ))}
+              <TableBody>
+                {summary.latestSales.map((order) => (
+                  <TableRow key={order.id}>
+                    <TableCell>
+                      {order?.user?.name ? order.user.name : "Deleted User"}
+                    </TableCell>
+                    <TableCell>
+                      {formatDateTime(order.createdAt).dateTime}
+                    </TableCell>
+                    <TableCell>
+                      {formatCurrency(order.totalPrice.toString())}
+                    </TableCell>
+                    <TableCell>
+                      <Link href={`/order/${order.id}`}>Details</Link>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
             </Table>
           </CardContent>
         </Card>

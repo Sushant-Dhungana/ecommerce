@@ -48,6 +48,7 @@ const OrderDetailsTable = ({
 
   const [paypalError, setPaypalError] = useState<string | null>(null);
 
+
   const PrintLoadingState = () => {
     const [{ isPending, isRejected }] = usePayPalScriptReducer();
     let status = "";
