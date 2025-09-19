@@ -10,9 +10,9 @@ import prisma from "@/lib/prisma";
 import { CartItem, PaymentResult } from "@/types";
 import { revalidatePath } from "next/cache";
 import { paypal } from "../paypal";
-import { PAGE_SIZE } from "../constants";
 import { Prisma } from "@prisma/client";
 import { Decimal } from "decimal.js";
+import { PAGE_SIZE } from "../constants";
 
 //create order and create the order items
 export async function createOrder() {
@@ -328,4 +328,38 @@ export async function getOrderSummary() {
     salesData,
     latestSales,
   };
+}
+
+//get all orders
+
+export async function getAllOrders({
+  limit = PAGE_SIZE,
+  page,
+}: {
+  limit?: number;
+  page: number;
+}) {
+  const data = await prisma.order.findMany({
+    orderBy: { createdAt: "desc" },
+    take: limit,
+    skip: (page - 1) * limit,
+    include: { user: { select: { name: true } } },
+  });
+  const dataCount = await prisma.order.count();
+  return {
+    data,
+    totalPages: Math.ceil(dataCount / limit),
+  };
+}
+
+//delete an order
+export async function deleteOrder(id: string) {
+  try {
+    await prisma.order.delete({
+      where: { id },
+    });
+    return { success: true, message: "Order deleted successfully" };
+  } catch (error) {
+    return { success: false, message: formatError(error) };
+  }
 }
