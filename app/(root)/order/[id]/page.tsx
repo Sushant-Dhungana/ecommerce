@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import OrderDetailsTable from "./order-details-table";
 import { ShippingAddress } from "@/types";
 import { requireAdmin } from "@/lib/auth-guard";
+import { auth } from "@/auth";
 
 export const metadata: Metadata = {
   title: "Order Details",
@@ -18,6 +19,8 @@ const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
 
   if (!order) notFound();
 
+  const session = await auth();
+
   return (
     <>
       <OrderDetailsTable
@@ -31,6 +34,7 @@ const OrderDetailsPage = async (props: { params: Promise<{ id: string }> }) => {
           },
         }}
         paypalClientId={process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID || "sb"}
+        isAdmin={session?.user?.role === "admin" || false}
       />
     </>
   );

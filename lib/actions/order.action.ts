@@ -10,7 +10,6 @@ import prisma from "@/lib/prisma";
 import { CartItem, PaymentResult } from "@/types";
 import { revalidatePath } from "next/cache";
 import { paypal } from "../paypal";
-import { Prisma } from "@prisma/client";
 import { Decimal } from "decimal.js";
 import { PAGE_SIZE } from "../constants";
 
@@ -361,5 +360,71 @@ export async function deleteOrder(id: string) {
     return { success: true, message: "Order deleted successfully" };
   } catch (error) {
     return { success: false, message: formatError(error) };
+  }
+}
+
+//update the order to paid
+
+export async function updateOrderToPaidCOD(orderId: string) {
+  try {
+    await updateOrderToPaid({
+      orderId,
+      paymentResult: {
+        id: "COD",
+        status: "COMPLETED",
+        email_address: "",
+        pricePaid: "",
+      },
+    });
+
+    revalidatePath(`/order/${orderId}`);
+    return {
+      success: true,
+      message: "Order Marked as paid",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    };
+  }
+}
+
+//update the order to delivered
+export async function updateOrderToDelivered(orderId: string) {
+  try {
+    const order = await prisma.order.findFirst({
+      where: {
+        id: orderId,
+      },
+    });
+    if (!order) {
+      throw new Error("Order not found");
+    }
+    if (!order.isPaid) {
+      throw new Error("Order not paid");
+    }
+    if (order.isDelivered) {
+      throw new Error("Order already delivered");
+    }
+    await prisma.order.update({
+      where: {
+        id: order.id,
+      },
+      data: {
+        isDelivered: true,
+        deliveredAt: new Date(),
+      },
+    });
+    revalidatePath(`/order/${orderId}`);
+    return {
+      success: true,
+      message: "Order Marked as Delivered",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    };
   }
 }
